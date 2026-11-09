@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>GEO 运营系统 · 登录</title>
+<style>
+  body { margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+         font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif; background:#f1f5f9; color:#334155; }
+  .card { background:#fff; border-radius:14px; padding:36px 40px; box-shadow:0 6px 24px rgba(15,23,42,.08); width:300px; }
+  h1 { font-size:18px; text-align:center; margin:0 0 6px; }
+  p { font-size:13px; color:#64748b; text-align:center; margin:0 0 18px; }
+  label { display:block; font-size:12px; color:#64748b; margin-bottom:6px; }
+  input { width:100%; box-sizing:border-box; padding:10px 12px; border:1px solid #e2e8f0; border-radius:8px; font-size:14px; outline:none; }
+  input:focus { border-color:#4f6ef7; box-shadow:0 0 0 3px rgba(79,110,247,.12); }
+  button { width:100%; margin-top:14px; padding:10px 0; border:0; border-radius:8px; background:#4f6ef7; color:#fff; font-size:14px; cursor:pointer; }
+  .msg { min-height:18px; font-size:12px; color:#ef4444; margin-top:10px; text-align:center; }
+</style></head><body>
+<div class="card">
+  <h1>GEO 运营系统</h1><p>请输入访问口令</p>
+  <form id="f">
+    <label for="code">访问口令</label>
+    <input type="password" id="code" autofocus>
+    <button id="btn" type="submit">登 录</button>
+  </form>
+  <div class="msg" id="msg"></div>
+</div>
+<script>
+/* 口令 → SHA-256(盐+口令) 匹配角色 → 角色页用口令派生密钥解密载荷。
+   页面里只有盐和哈希，没有口令本体；载荷是密文，口令错误解不开。 */
+var ROLES = [{"role":"team","salt":"dae7ab82c77456da7c1a680acac7a4de","hash":"ea680948fa3e4055938dbefee32633eed8fdd5fa2a7ce6e3478272c2b7af3f04"},{"role":"demo","salt":"1460076c6e9648ef100e1876b5bb1c4e","hash":"e5590a00c9ad66583f3733ce64739a665a4e92a5b0c61d62b71c4dd0f5c01108"},{"role":"admin","salt":"2cb393ba943bf642f7d87af2184a608d","hash":"4ac68d540d86e449a001d425cba756c595cce9de4e37b527d95c188c6b177dd4"}];
+var f = document.getElementById('f'), code = document.getElementById('code'),
+    btn = document.getElementById('btn'), msg = document.getElementById('msg');
+async function sha256hex(s) {
+  var d = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s));
+  return Array.from(new Uint8Array(d)).map(function (b) { return b.toString(16).padStart(2, '0'); }).join('');
+}
+f.addEventListener('submit', async function (e) {
+  e.preventDefault();
+  var v = code.value;
+  if (!v) { msg.textContent = '请输入口令'; return; }
+  btn.disabled = true; msg.style.color = '#94a3b8'; msg.textContent = '验证中…';
+  var hit = null;
+  for (var i = 0; i < ROLES.length; i++) {
+    if (await sha256hex(ROLES[i].salt + ':' + v) === ROLES[i].hash) { hit = ROLES[i]; break; }
+  }
+  if (hit) {
+    try { sessionStorage.setItem('geo_gh_pw', v); } catch (e2) {}
+    msg.style.color = '#22b07d'; msg.textContent = '通过，正在进入…';
+    setTimeout(function () { location.href = hit.role + '.html'; }, 300);
+  } else {
+    msg.style.color = '#ef4444'; msg.textContent = '口令不正确';
+    btn.disabled = false; code.select();
+  }
+});
+</script>
+</body></html>
