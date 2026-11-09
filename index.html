@@ -25,7 +25,7 @@
 <script>
 /* 口令 → SHA-256(盐+口令) 匹配角色 → 角色页用口令派生密钥解密载荷。
    页面里只有盐和哈希，没有口令本体；载荷是密文，口令错误解不开。 */
-var ROLES = [{"role":"team","salt":"dae7ab82c77456da7c1a680acac7a4de","hash":"ea680948fa3e4055938dbefee32633eed8fdd5fa2a7ce6e3478272c2b7af3f04"},{"role":"demo","salt":"1460076c6e9648ef100e1876b5bb1c4e","hash":"e5590a00c9ad66583f3733ce64739a665a4e92a5b0c61d62b71c4dd0f5c01108"},{"role":"admin","salt":"2cb393ba943bf642f7d87af2184a608d","hash":"4ac68d540d86e449a001d425cba756c595cce9de4e37b527d95c188c6b177dd4"}];
+var ROLES = [{"role":"team","salt":"b345743a777f5d8213dbc44059bca31a","hash":"7fb57895473e30556a738346e4609343061cddd040a87da7131529b0debb4b12"},{"role":"demo","salt":"ee5d09bde4858c9f7031aaabf3ca6a6e","hash":"061f544c9fa7b32572f9fff5a1e2aefe11a28ad6ca57f37093835ef52f49fdb9"},{"role":"admin","salt":"681eb2635e44b7d648b2b135aefec238","hash":"4f722d412eeb7777e0c9e6aeffab409b7fad14a0d343ed2cf79510dd7928aad8"}];
 var f = document.getElementById('f'), code = document.getElementById('code'),
     btn = document.getElementById('btn'), msg = document.getElementById('msg');
 async function sha256hex(s) {
